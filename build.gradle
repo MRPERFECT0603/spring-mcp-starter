@@ -1,0 +1,44 @@
+plugins {
+    id 'java-library'
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
+group = 'io.springmcp'
+version = '0.1.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'io.github.classgraph:classgraph:4.8.171'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+gradlePlugin {
+    plugins {
+        springMcp {
+            id = "io.springmcp.plugin"
+            implementationClass = "io.springmcp.plugin.SpringMcpPlugin"
+        }
+    }
+}
+
+publishing {
+    repositories {
+        mavenLocal()
+    }
+}
