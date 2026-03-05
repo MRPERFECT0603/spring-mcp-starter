@@ -1,9 +1,8 @@
 package io.springmcp.spring;
 
-import io.springmcp.runtime.McpToolLoader;
+import io.springmcp.runtime.McpRuntimeInitializer;
 import io.springmcp.runtime.ToolRegistry;
-import io.springmcp.server.SpringMcpServer;
-
+import io.springmcp.server.McpHttpController;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,20 +11,20 @@ import org.springframework.context.annotation.Configuration;
 public class SpringMcpAutoConfiguration {
 
     @Bean
-    public SpringMcpServer springMcpServer(ApplicationContext context) throws Exception {
+    public ToolRegistry toolRegistry() {
+        return new ToolRegistry();
+    }
 
-        ToolRegistry registry = McpToolLoader.loadTools(context);
+    @Bean
+    public McpRuntimeInitializer runtimeInitializer(
+            ToolRegistry registry,
+            ApplicationContext context
+    ) {
+        return new McpRuntimeInitializer(registry, context);
+    }
 
-        SpringMcpServer server = new SpringMcpServer(registry);
-
-        new Thread(() -> {
-            try {
-                server.start();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-
-        return server;
+    @Bean
+    public McpHttpController mcpHttpController(ToolRegistry registry) {
+        return new McpHttpController(registry);
     }
 }

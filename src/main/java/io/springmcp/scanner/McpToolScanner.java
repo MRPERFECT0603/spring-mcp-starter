@@ -5,8 +5,7 @@ import io.springmcp.annotation.McpTool;
 import io.springmcp.model.ToolDefinition;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class McpToolScanner {
 
@@ -45,12 +44,44 @@ public class McpToolScanner {
                             description = descVal.toString();
                         }
 
-                        tools.add(new ToolDefinition(name, description));
+                        Map<String, Object> schema =
+                                generateInputSchema(methodInfo);
+
+                        tools.add(
+                                new ToolDefinition(
+                                        name,
+                                        description,
+                                        classInfo.getName(),
+                                        methodInfo.getName(),
+                                        schema
+                                )
+                        );
                     }
                 }
             }
         }
 
         return tools;
+    }
+
+    private Map<String, Object> generateInputSchema(MethodInfo methodInfo) {
+
+        Map<String, Object> schema = new HashMap<>();
+        Map<String, Object> properties = new HashMap<>();
+
+        schema.put("type", "object");
+
+        for (MethodParameterInfo param : methodInfo.getParameterInfo()) {
+
+            Map<String, Object> prop = new HashMap<>();
+
+            prop.put("type", "object");
+
+            properties.put(param.getName(), prop);
+        }
+
+        schema.put("properties", properties);
+
+        return schema;
     }
 }
