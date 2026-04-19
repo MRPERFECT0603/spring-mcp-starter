@@ -10,6 +10,8 @@ public class ToolDefinition {
     private String className;
     private String methodName;
 
+    private boolean enabled = true;
+
     private Map<String, Object> inputSchema;
 
     public ToolDefinition() {}
@@ -33,5 +35,7 @@ public class ToolDefinition {
     public String getClassName() { return className; }
     public String getMethodName() { return methodName; }
     public Map<String, Object> getInputSchema() { return inputSchema; }
+    public boolean isEnabled() { return enabled; }
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
 
 }

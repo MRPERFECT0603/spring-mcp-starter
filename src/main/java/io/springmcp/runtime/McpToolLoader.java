@@ -1,6 +1,6 @@
 package io.springmcp.runtime;
 
-import io.springmcp.annotation.McpTool;
+import io.springmcp.annotation.McpExpose;
 import org.springframework.context.ApplicationContext;
 
 import java.lang.reflect.Method;
@@ -21,9 +21,9 @@ public class McpToolLoader {
 
             for (Method method : methods) {
 
-                if (method.isAnnotationPresent(McpTool.class)) {
+                if (method.isAnnotationPresent(McpExpose.class)) {
 
-                    McpTool annotation = method.getAnnotation(McpTool.class);
+                    McpExpose annotation = method.getAnnotation(McpExpose.class);
 
                     registry.register(
                             annotation.name(),

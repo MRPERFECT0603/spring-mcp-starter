@@ -3,6 +3,7 @@ package io.springmcp.runtime;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
+import io.springmcp.runtime.ToolMetadataStore;
 
 public class McpRuntimeInitializer {
 
@@ -19,6 +20,8 @@ public class McpRuntimeInitializer {
     public void initialize() {
 
         System.out.println("Spring MCP: loading tools");
+
+        ToolMetadataStore.load("mcp/tools.json");
 
         ToolRegistry loaded = McpToolLoader.loadTools(context);
 

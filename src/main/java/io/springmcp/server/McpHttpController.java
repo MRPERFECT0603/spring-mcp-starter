@@ -1,6 +1,8 @@
 package io.springmcp.server;
 
+import io.springmcp.model.ToolDefinition;
 import io.springmcp.runtime.MethodInvoker;
+import io.springmcp.runtime.ToolMetadataStore;
 import io.springmcp.runtime.ToolRegistry;
 import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -69,16 +71,23 @@ public class McpHttpController {
 
             registry.getAllTools().forEach((name, invoker) -> {
 
+                ToolDefinition def = ToolMetadataStore.get(name);
+
                 Map<String, Object> tool = new HashMap<>();
-
                 tool.put("name", name);
-                tool.put("description", "Spring MCP tool");
 
-                Map<String, Object> schema = new HashMap<>();
-                schema.put("type", "object");
-                schema.put("properties", new HashMap<>());
-
-                tool.put("inputSchema", schema);
+                if (def != null) {
+                    tool.put("description", def.getDescription());
+                    tool.put("inputSchema", def.getInputSchema());
+                    tool.put("enabled", def.isEnabled());   // 👈 key change
+                } else {
+                    tool.put("description", "Spring MCP tool");
+                    tool.put("inputSchema", Map.of(
+                            "type", "object",
+                            "properties", Map.of()
+                    ));
+                    tool.put("enabled", true);
+                }
 
                 tools.add(tool);
             });
@@ -101,6 +110,12 @@ public class McpHttpController {
                     (Map<String, Object>) body.getOrDefault("params", new HashMap<>());
 
             String name = (String) params.get("name");
+
+            ToolDefinition def = ToolMetadataStore.get(name);
+
+            if (def != null && !def.isEnabled()) {
+                throw new RuntimeException("Tool is disabled: " + name);
+            }
 
             Map<String, Object> arguments =
                     (Map<String, Object>) params.getOrDefault("arguments", new HashMap<>());
@@ -142,5 +157,16 @@ public class McpHttpController {
         response.put("error",error);
 
         return response;
+    }
+
+    @PostMapping("/tools/toggle")
+    public String toggleTool(@RequestBody Map<String, Object> body) {
+
+        String name = (String) body.get("name");
+        boolean enabled = (Boolean) body.get("enabled");
+
+        ToolMetadataStore.setEnabled(name, enabled);
+
+        return "Tool " + name + " set to " + enabled;
     }
 }
